@@ -1,0 +1,14 @@
+SOUTH, NORTH, EAST, WEST
+stay on biome for 1 turn
+rest or explore,
+rest full hp and a kinda high chance of getting ambushed (dangerous fight)
+explore event or fight
+
+darkest dungeon?
+torches?
+json write to remember?
+vote action?
+biome specific enemies? 1 = grasslands , 2 = hills , 3 = forest, 4 = mountains, 5 = swamp, 6 = tundra, 7 = water, 8 = dungeon
+bosses?
+dungeons?
+status file that records current biome and previously visited direction and biome

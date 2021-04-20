@@ -1,0 +1,57 @@
+{
+    "Large Rat": {
+        "health": 1,
+        "damage": 1,
+        "biome": [1, 2, 3, 5, 8],
+        "gold": false,
+        "xp": 1,
+        "scale": 1,
+        "horde": true
+
+    },
+    "Snake": {
+        "health": 1,
+        "damage": 1,
+        "biome": [1, 2, 3, 5, 8],
+        "gold": false,
+        "xp": 1,
+        "scale": 1,
+        "horde": false
+    },
+    "Skeleton": {
+        "health": 2,
+        "damage": 2,
+        "biome": [3, 4, 5, 6, 8],
+        "gold": true,
+        "xp": 2,
+        "scale": 1,
+        "horde": true
+    },
+    "Goblin": {
+        "health": 2,
+        "damage": 2,
+        "biome": [2, 3, 4, 5, 6, 8],
+        "gold": true,
+        "xp": 2,
+        "scale": 1,
+        "horde": true
+    },
+    "Piranah": {
+        "health": 1,
+        "damage": 1,
+        "biome": [7],
+        "gold": false,
+        "xp": 1,
+        "scale": 1,
+        "horde": true
+    },
+    "Wolf": {
+        "health": 2,
+        "damage": 2,
+        "biome": [6],
+        "gold": false,
+        "xp": 1,
+        "scale": 1,
+        "horde": true
+    }
+}
