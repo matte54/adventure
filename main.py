@@ -84,6 +84,8 @@ class Mainclass():
             data = json.load(f)
         #refill hp to max.
         data["health"] = data["healthcap"]
+        self.writeJSON(self.filePath, data)
+        self.health = self.healthcap
         self.flare("rest")
         if random.triangular(0, 100, 40) > 70:
             print("Ambush!")
@@ -156,7 +158,8 @@ class Mainclass():
                 print("FAILURE!")
                 self.handleProfileStats(0, damage, 0)
                 self.EVENT = False
-
+        else:
+            print(f'You find nothing...')
 
     def loadEvent(self, classStr):
         with open(f"./data/{classStr}events.json", "r") as f:
