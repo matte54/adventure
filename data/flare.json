@@ -1,0 +1,18 @@
+{
+    "move": [
+        "Moving!",
+        "Going!"
+    ],
+    "rest": [
+        "Resting...",
+        "Sleeping..."
+    ],
+    "attack": [
+        "Attack!",
+        "Swing!"
+    ],
+    "explore": [
+        "Looking around...",
+        "Searching..."
+    ]
+}

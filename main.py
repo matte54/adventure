@@ -68,7 +68,7 @@ class Mainclass():
                 biomeText = biomeData[i]
                 break
 
-
+        self.flare("move")
         msg = f'You are in a {biomeText} biome , what will you do?'
         f.close()
         bf.close()
@@ -80,6 +80,7 @@ class Mainclass():
             data = json.load(f)
         #refill hp to max.
         data["health"] = data["healthcap"]
+        self.flare("rest")
 
     def choice(self):
         i = input('Make your choice (EXPLORE/REST/MOVE?):')
@@ -104,6 +105,14 @@ class Mainclass():
         f.close()
         return data
 
+    def flare(self, type):
+        with open("./data/flare.json", "r") as f:
+            data = json.load(f)
+        x = random.choice(data[type])
+        print(x)
+        f.close()
+
+
     def inputMove(self):
         i = input('Where to? (NORTH/EAST/SOUTH/WEST?):')
         if i == "north" or i == "n":
@@ -118,7 +127,8 @@ class Mainclass():
             print(f'invalid input')
             return None
 
-    def explore():
+    def explore(self):
+        self.flare("explore")
         pass
 
     def spawnMob():
@@ -153,10 +163,10 @@ def game():#gameloop
     if y == "move":
         return # go back to start of gameloop
     elif y == "explore":
-        print("exploring...")
+        gameobject.explore()
     elif y == "rest":
         gameobject.rest()
-        print("resting...")
+
 
 
 

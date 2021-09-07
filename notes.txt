@@ -12,3 +12,6 @@ biome specific enemies? 1 = grasslands , 2 = hills , 3 = forest, 4 = mountains, 
 bosses?
 dungeons?
 status file that records current biome and previously visited direction and biome
+
+
+flare?
