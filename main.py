@@ -23,10 +23,9 @@ class Mainclass():
         print(f'Starting a new game...')
 
     def move(self, direction):
-        print(direction)
         filePath = f"./data/gamememorydata.json"
         if os.path.isfile(filePath) != True:
-            data = {"currentbiome": 1, "previousbiome": 1, "lastheading": "south", "activity": ""}
+            data = {"currentbiome": 1, "previousbiome": 1, "lastheading": "", "activity": ""}
             self.writeJSON(filePath, data)
         with open(filePath, "r") as f:
             data = json.load(f)
@@ -39,11 +38,13 @@ class Mainclass():
             opposite = "east"
         if data["lastheading"] == "east":
             opposite = "west"
+        if data["lastheading"] == "":
+            opposite = "south"
 
         with open("./data/biomes.json", "r") as bf:
             biomeData = json.load(bf)
         if direction != opposite:
-            print(f'New direction...')
+            #print(f'New direction...')
             biomeList = [data["previousbiome"], data["currentbiome"]]
             for i in range(2):
                 x = random.choice(list(biomeData))
@@ -53,17 +54,20 @@ class Mainclass():
             data["currentbiome"] = biome
             data["lastheading"] = direction
         else:
-            print(f'Heading back...')
+            #print(f'Heading back...')
             extra = data["currentbiome"]
             data["currentbiome"] = data["previousbiome"]
             data["previousbiome"] = extra
             data["lastheading"] = direction
 
         #get text printed biomename
+        biomeText = "Grasslands"
         for i in biomeData:
             if i == data["currentbiome"]:
                 print(f'yay {biomeData[i]}')
                 biomeText = biomeData[i]
+                break
+
 
         msg = f'You are in a {biomeText} biome , what will you do?'
         f.close()
