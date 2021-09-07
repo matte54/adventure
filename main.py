@@ -207,7 +207,7 @@ class Mainclass():
                 #print(f'{enemyKey} can spawn in biome {self.currentBiome}')
                 searching = False
         if enemyData[enemyKey]["horde"]:
-            amount = random.randint(1, 3)
+            amount = int(random.triangular(1, 5, 1))
         else:
             amount = 1
         print(f"Suddenly {amount} {enemyKey}(s) attack!")
