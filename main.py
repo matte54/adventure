@@ -16,13 +16,14 @@ class Mainclass():
         self.xp = 0
         self.xpcap = 20
         self.health = 10
+        self.healthcap = 10
         self.damage = 0
         self.defense = 1
         self.gold = 0
         #starting gear
         self.weapon = "Fists"
         self.armor = "Cloth Tunic"
-        self.data = {"level": self.level, "xp": self.xp, "xpcap": self.xpcap, "health": self.health, "healthcap": self.health, "damage": self.damage, "defense": self.defense, "gold": self.gold, "weapon": self.weapon, "armor": self.armor}
+        self.data = {"level": self.level, "xp": self.xp, "xpcap": self.xpcap, "health": self.health, "healthcap": self.healthcap, "damage": self.damage, "defense": self.defense, "gold": self.gold, "weapon": self.weapon, "armor": self.armor}
         self.writeJSON(self.filePath, self.data)
         print(f'Starting a new game...')
 
