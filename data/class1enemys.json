@@ -48,7 +48,7 @@
     "Wolf": {
         "health": 2,
         "damage": 2,
-        "biome": [6],
+        "biome": [1, 2, 3, 4, 6, 8],
         "gold": false,
         "xp": 1,
         "scale": 1,
