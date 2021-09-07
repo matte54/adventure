@@ -7,10 +7,13 @@ class Mainclass():
         #stuff
         self.currentBiome = 1
         self.filePath = f"./data/gameprofiledata.json"
-        #delete old profile
+        #delete old profile and memory
         if os.path.isfile(self.filePath) == True:
             os.remove(self.filePath)
             print(f'removing old profile data...')
+        if os.path.isfile('./data/gamememorydata.json') == True:
+            os.remove('./data/gamememorydata.json')
+            print(f'removing old memory data...')
         #starting stats
         self.level = 1
         self.xp = 0
@@ -163,7 +166,11 @@ class Mainclass():
                 self.handleProfileStats(0, damage, 0)
                 self.EVENT = False
         else:
-            print(f'You find nothing...')
+            #add high chance of combat on explore
+            if bool(random.getrandbits(1)):
+                self.fight("class1")
+            else:
+                print(f'You find nothing...')
 
     def loadEvent(self, classStr):
         with open(f"./data/{classStr}events.json", "r") as f:
@@ -191,7 +198,7 @@ class Mainclass():
             statchange = statchange + f'$: +{gold} '
         with open(self.filePath, "r") as f:
             data = json.load(f)
-        data["xp"] += xp
+        data["xp"] += xp #this needs level up for reaching xpcap
         data["health"] -= health
         data["gold"] += gold
         print(statchange)
