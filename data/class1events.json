@@ -6,11 +6,11 @@
         "xp": 1,
         "scale": 1
     },
-    "Fetch": {
-        "flare": "Fetch the fryign pan for a cook",
-        "damage": [1, 2],
+    "Missing": {
+        "flare": "Find the missing person!",
+        "damage": [0, 0],
         "gold": 2,
         "xp": 1,
-        "scale": 1
+        "scale": 0
     }
 }

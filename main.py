@@ -1,7 +1,11 @@
-import random, json, os
+import random, json, os, time
 
 class Mainclass():
     def __init__(self):
+        #constants
+        self.EVENT = False
+        #stuff
+        self.currentBiome = 1
         self.filePath = f"./data/gameprofiledata.json"
         #delete old profile
         if os.path.isfile(self.filePath) == True:
@@ -13,7 +17,7 @@ class Mainclass():
         self.xpcap = 20
         self.health = 10
         self.damage = 0
-        self.defense = 0
+        self.defense = 1
         self.gold = 0
         #starting gear
         self.weapon = "Fists"
@@ -52,6 +56,7 @@ class Mainclass():
             biome = random.choice(biomeList)
             data["previousbiome"] = data["currentbiome"]
             data["currentbiome"] = biome
+            self.currentBiome = biome
             data["lastheading"] = direction
         else:
             #print(f'Heading back...')
@@ -64,7 +69,6 @@ class Mainclass():
         biomeText = "Grasslands"
         for i in biomeData:
             if i == data["currentbiome"]:
-                print(f'yay {biomeData[i]}')
                 biomeText = biomeData[i]
                 break
 
@@ -81,6 +85,10 @@ class Mainclass():
         #refill hp to max.
         data["health"] = data["healthcap"]
         self.flare("rest")
+        if random.triangular(0, 100, 40) > 70:
+            print("Ambush!")
+            self.fight("class1")
+
 
     def choice(self):
         i = input('Make your choice (EXPLORE/REST/MOVE?):')
@@ -129,25 +137,106 @@ class Mainclass():
 
     def explore(self):
         self.flare("explore")
-        pass
+        if random.triangular(0, 100, 50) > 50:
+            self.EVENT = True
+            #todo add class of event depending on level of player
+            eName, eFlare, eDmg, eGold, eXp, eScale = self.loadEvent("class1")
+            #add high chance of combat on explore
+            self.fight("class1")
+            #get the random damage from event and subtract player defense
+            damage = (random.choice(eDmg) - self.defense)
+            if damage <= 0:
+                damage = 0
+            print(f'EVENT - {eName} - {eFlare}')
+            if bool(random.getrandbits(1)):  #todo add some player stat to affect success?
+                print("SUCCESS!")
+                self.handleProfileStats(eXp, damage, eGold)
+                self.EVENT = False
+            else:
+                print("FAILURE!")
+                self.handleProfileStats(0, damage, 0)
+                self.EVENT = False
 
-    def spawnMob():
-        pass
 
-    def xpGain():
-        pass
+    def loadEvent(self, classStr):
+        with open(f"./data/{classStr}events.json", "r") as f:
+            eventData = json.load(f)
+        eventKey = random.choice(list(eventData.keys()))
+        eventFlare = eventData[eventKey]["flare"]
+        eventDamage = eventData[eventKey]["damage"]
+        eventGold = eventData[eventKey]["gold"]
+        eventXp = eventData[eventKey]["xp"]
+        eventScale = eventData[eventKey]["scale"]
+        return eventKey, eventFlare, eventDamage, eventGold, eventXp, eventScale
 
-    def goldGain():
-        pass
+
+    #handles basic stats, write something else to handle gear ?
+    def handleProfileStats(self, xp, health, gold):
+        statchange = "Stats changed: "
+        if xp != 0:
+            self.xp += xp
+            statchange = statchange + f'xp: +{xp} '
+        if health != 0:
+            self.health -= health
+            statchange = statchange + f'life: -{health} '
+        if gold != 0:
+            self.gold += gold
+            statchange = statchange + f'$: +{gold} '
+        with open(self.filePath, "r") as f:
+            data = json.load(f)
+        data["xp"] += xp
+        data["health"] -= health
+        data["gold"] += gold
+        print(statchange)
+        print(f'Current stats: life:{data["health"]}/{data["healthcap"]} lvl:{data["level"]} xp:{data["xp"]}/{data["xpcap"]} $:{data["gold"]} dmg:{data["damage"]} def:{data["defense"]}')
+        self.writeJSON(self.filePath, data)
+
+    def fight(self, classStr):
+        #grab enemy
+        with open(f"./data/{classStr}enemys.json", "r") as f:
+            enemyData = json.load(f)
+        searching = True
+        while searching:
+            enemyKey = random.choice(list(enemyData.keys()))
+            if int(self.currentBiome) in enemyData[enemyKey]["biome"]:
+                #print(f'{enemyKey} can spawn in biome {self.currentBiome}')
+                searching = False
+        if enemyData[enemyKey]["horde"]:
+            amount = random.randint(1, 3)
+        else:
+            amount = 1
+        print(f"Suddenly {amount} {enemyKey}(s) attack!")
+        #enemy data
+        Elife = enemyData[enemyKey]["health"]
+        Edmg = enemyData[enemyKey]["damage"]
+        Escale = enemyData[enemyKey]["scale"]
+        Exp = enemyData[enemyKey]["xp"]
+        if enemyData[enemyKey]["gold"]:
+            Egold = random.randint(1, 3)
+        else:
+            Egold = 0
+        #combat calculations
+        #loop over player and enemy damage?
+        acctual_player_damage = (self.damage + 1) #this needs weapon damage added 1 for now
+        acctual_enemy_health = (Elife * amount)
+        acctual_enemy_damage = ((Edmg * Escale) * amount)
+        acctual_enemy_xp = (Exp * amount)
+        acctual_enemy_gold = (Egold * amount)
+        #math? :S
+        rounds = 0
+        while acctual_enemy_health > 0:
+            acctual_enemy_health -= acctual_player_damage
+            rounds += 1
+        acctual_enemy_damage = (acctual_enemy_damage * rounds) / self.defense #this needs defense from armor
+        #end
+        self.handleProfileStats(int(acctual_enemy_xp), int(acctual_enemy_damage), int(acctual_enemy_gold)) #rounding here hopefully no problems?
+
 
     def lootGain():
         pass
 
-    def attack(monster):
-        pass
-
-    def hurt():
-        pass
+    def wipe(self):
+        os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def game():#gameloop
@@ -164,14 +253,18 @@ def game():#gameloop
         return # go back to start of gameloop
     elif y == "explore":
         gameobject.explore()
+        while gameobject.EVENT:
+            time.sleep(3)
+
     elif y == "rest":
         gameobject.rest()
 
 
 
 
-
 gameobject = Mainclass()
 
-while True:
+while gameobject.health > 0:
     game()
+print("You died!")
+print("Goodbye")
