@@ -144,7 +144,8 @@ class Mainclass():
             #todo add class of event depending on level of player
             eName, eFlare, eDmg, eGold, eXp, eScale = self.loadEvent("class1")
             #add high chance of combat on explore
-            self.fight("class1")
+            if bool(random.getrandbits(1)):
+                self.fight("class1")
             #get the random damage from event and subtract player defense
             damage = (random.choice(eDmg) - self.defense)
             if damage <= 0:
