@@ -81,6 +81,7 @@ class Mainclass():
         return msg
 
     def rest(self):
+        self.wipe()
         with open("./data/gameprofiledata.json", "r") as f:
             data = json.load(f)
         #refill hp to max.
@@ -139,6 +140,7 @@ class Mainclass():
             return None
 
     def explore(self):
+        self.wipe()
         self.flare("explore")
         if random.triangular(0, 100, 50) > 50:
             self.EVENT = True
