@@ -3,14 +3,16 @@
         "flare": "Fetch the fryign pan for a cook",
         "damage": [1, 2],
         "gold": 2,
-        "xp": 1,
+        "xp": 2,
+        "biome": [1, 2, 3, 4, 5, 6, 7, 8],
         "scale": 1
     },
     "Missing": {
         "flare": "Find the missing person!",
         "damage": [0, 0],
         "gold": 2,
-        "xp": 1,
+        "xp": 2,
+        "biome": [1, 2, 3, 4, 5, 6, 7, 8],
         "scale": 0
     }
 }

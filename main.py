@@ -22,11 +22,12 @@ class Mainclass():
         self.healthcap = 10
         self.damage = 0
         self.defense = 1
+        self.luck = 1
         self.gold = 0
         #starting gear
         self.weapon = "Fists"
         self.armor = "Cloth Tunic"
-        self.data = {"level": self.level, "xp": self.xp, "xpcap": self.xpcap, "health": self.health, "healthcap": self.healthcap, "damage": self.damage, "defense": self.defense, "gold": self.gold, "weapon": self.weapon, "armor": self.armor}
+        self.data = {"level": self.level, "xp": self.xp, "xpcap": self.xpcap, "health": self.health, "healthcap": self.healthcap, "damage": self.damage, "defense": self.defense, "luck": self.luck, "gold": self.gold, "weapon": self.weapon, "armor": self.armor}
         self.writeJSON(self.filePath, self.data)
         print(f'Starting a new game...')
 
@@ -92,7 +93,7 @@ class Mainclass():
         self.writeJSON(self.filePath, data)
         self.health = self.healthcap
         self.flare("rest")
-        if random.triangular(0, 100, 40) > 70:
+        if random.triangular(0, 100, 50) > (55 + self.luck):
             print("Ambush!")
             self.fight("class1")
 
@@ -157,7 +158,7 @@ class Mainclass():
             if damage <= 0:
                 damage = 0
             print(f'EVENT - {eName} - {eFlare}')
-            if bool(random.getrandbits(1)):  #todo add some player stat to affect success?
+            if random.triangular(0, 100, 50) > 50:
                 print("SUCCESS!")
                 self.handleProfileStats(eXp, damage, eGold)
                 self.EVENT = False
@@ -175,6 +176,7 @@ class Mainclass():
     def loadEvent(self, classStr):
         with open(f"./data/event/{classStr}events.json", "r") as f:
             eventData = json.load(f)
+        #this needs class of event depending on stuff and biome specific.
         eventKey = random.choice(list(eventData.keys()))
         eventFlare = eventData[eventKey]["flare"]
         eventDamage = eventData[eventKey]["damage"]
@@ -185,7 +187,7 @@ class Mainclass():
         return eventKey, eventFlare, eventDamage, eventGold, eventXp, eventScale
 
 
-    #handles basic stats, write something else to handle gear ?
+    #handles basic stats
     def handleProfileStats(self, xp, health, gold):
         statchange = "Stats changed: "
         if xp != 0:
@@ -199,13 +201,37 @@ class Mainclass():
             statchange = statchange + f'$: +{gold} '
         with open(self.filePath, "r") as f:
             data = json.load(f)
-        data["xp"] += xp #this needs level up for reaching xpcap
-        data["health"] -= health
-        data["gold"] += gold
-        print(statchange)
-        print(f'Current stats: life:{data["health"]}/{data["healthcap"]} lvl:{data["level"]} xp:{data["xp"]}/{data["xpcap"]} $:{data["gold"]} dmg:{data["damage"]} def:{data["defense"]}')
+
+        #levelup
+        if self.xp >= self.xpcap:
+            excess = (self.xp - self.xpcap) #get excess if over the cap
+            #memory stat update
+            self.level += 1
+            self.xp = 0
+            self.xp += excess
+            self.xpcap += (self.xpcap + self.level) #classic level cap increase
+            self.damage += 1
+            self.defense += 1
+            self.luck += 1
+            self.healthcap += 2
+            #file stat update
+            data["level"] = self.level
+            data["xpcap"] = self.xpcap
+            data["damage"] = self.damage
+            data["defense"] = self.defense
+            data["luck"] = self.luck
+            data["healthcap"] = self.healthcap
+            print(f'DING! level {self.level}! +1 to all stats! and +2 healthcap')
+        else:
+            data["xp"] = self.xp
+        data["health"] = self.health
+        data["gold"] = self.gold
+        if len(statchange) > 15:
+            print(statchange)
+        print(f'Current stats: life:{data["health"]}/{data["healthcap"]} lvl:{data["level"]} xp:{data["xp"]}/{data["xpcap"]} $:{data["gold"]} dmg:{data["damage"]} def:{data["defense"]} luck:{data["luck"]}')
         self.writeJSON(self.filePath, data)
         f.close()
+        #print(f'DEBUG - {self.xp} / {self.xpcap} - DEBUG')
 
     def fight(self, classStr):
         #grab enemy
@@ -236,18 +262,19 @@ class Mainclass():
         gDmg, gDef = self.gearStats()
         #combat calculations
         #loop over player and enemy damage?
-        acctual_player_damage = (self.damage + gDmg) #this needs weapon damage added 1 for now
+        acctual_player_damage = (self.damage + gDmg)
         acctual_enemy_health = (Elife * amount)
         acctual_enemy_damage = ((Edmg * Escale) * amount)
         acctual_enemy_xp = (Exp * amount)
-        acctual_enemy_gold = (Egold * amount)
+        acctual_enemy_gold = ((Egold + self.luck) * amount)
         #math? :S
         rounds = 0
         while acctual_enemy_health > 0:
             acctual_enemy_health -= acctual_player_damage
             rounds += 1
-        acctual_enemy_damage = (acctual_enemy_damage * rounds) / (self.defense + gDef) #this needs defense from armor
+        acctual_enemy_damage = (acctual_enemy_damage * rounds) / (self.defense + gDef)
         #end
+        #add some random luck based chances for diffrent things?
         self.handleProfileStats(int(acctual_enemy_xp), int(acctual_enemy_damage), int(acctual_enemy_gold)) #rounding here hopefully no problems?
 
     def gearStats(self):
