@@ -173,7 +173,7 @@ class Mainclass():
                 print(f'You find nothing...')
 
     def loadEvent(self, classStr):
-        with open(f"./data/{classStr}events.json", "r") as f:
+        with open(f"./data/event/{classStr}events.json", "r") as f:
             eventData = json.load(f)
         eventKey = random.choice(list(eventData.keys()))
         eventFlare = eventData[eventKey]["flare"]
@@ -181,6 +181,7 @@ class Mainclass():
         eventGold = eventData[eventKey]["gold"]
         eventXp = eventData[eventKey]["xp"]
         eventScale = eventData[eventKey]["scale"]
+        f.close()
         return eventKey, eventFlare, eventDamage, eventGold, eventXp, eventScale
 
 
@@ -204,10 +205,11 @@ class Mainclass():
         print(statchange)
         print(f'Current stats: life:{data["health"]}/{data["healthcap"]} lvl:{data["level"]} xp:{data["xp"]}/{data["xpcap"]} $:{data["gold"]} dmg:{data["damage"]} def:{data["defense"]}')
         self.writeJSON(self.filePath, data)
+        f.close()
 
     def fight(self, classStr):
         #grab enemy
-        with open(f"./data/{classStr}enemys.json", "r") as f:
+        with open(f"./data/enemy/{classStr}enemys.json", "r") as f:
             enemyData = json.load(f)
         searching = True
         while searching:
@@ -229,9 +231,12 @@ class Mainclass():
             Egold = random.randint(1, 3)
         else:
             Egold = 0
+
+        #get gear Stats
+        gDmg, gDef = self.gearStats()
         #combat calculations
         #loop over player and enemy damage?
-        acctual_player_damage = (self.damage + 1) #this needs weapon damage added 1 for now
+        acctual_player_damage = (self.damage + gDmg) #this needs weapon damage added 1 for now
         acctual_enemy_health = (Elife * amount)
         acctual_enemy_damage = ((Edmg * Escale) * amount)
         acctual_enemy_xp = (Exp * amount)
@@ -241,10 +246,34 @@ class Mainclass():
         while acctual_enemy_health > 0:
             acctual_enemy_health -= acctual_player_damage
             rounds += 1
-        acctual_enemy_damage = (acctual_enemy_damage * rounds) / self.defense #this needs defense from armor
+        acctual_enemy_damage = (acctual_enemy_damage * rounds) / (self.defense + gDef) #this needs defense from armor
         #end
         self.handleProfileStats(int(acctual_enemy_xp), int(acctual_enemy_damage), int(acctual_enemy_gold)) #rounding here hopefully no problems?
 
+    def gearStats(self):
+        armorsPath = os.listdir("./data/armor/")
+        weaponsPath = os.listdir("./data/weapon/")
+        currentArmor = self.armor
+        currentWeapon = self.weapon
+        for i in armorsPath:
+            with open(f"./data/armor/{i}", "r") as a:
+                #print(f'Loading {i}...')
+                data = json.load(a)
+                if currentArmor in data.keys():
+                    #print("yup")
+                    currentArmorDefense = data[currentArmor]
+                    a.close()
+                    break
+        for i in weaponsPath:
+            with open(f"./data/weapon/{i}", "r") as w:
+                #print(f'Loading {i}...')
+                data = json.load(w)
+                if currentWeapon in data.keys():
+                    #print("yup")
+                    currentWeaponDamage = data[currentWeapon]
+                    w.close()
+                    break
+        return currentWeaponDamage ,currentArmorDefense
 
     def lootGain():
         pass
