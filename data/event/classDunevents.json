@@ -1,0 +1,18 @@
+{
+    "Leaver": {
+        "flare": "Trying the suspicious leaver on that wall.",
+        "damage": [0, 5],
+        "gold": 5,
+        "xp": 5,
+        "biome": [8],
+        "scale": 2
+    },
+    "Chest": {
+        "flare": "Loot the treasure chest you found.",
+        "damage": [0, 2],
+        "gold": 10,
+        "xp": 3,
+        "biome": [8],
+        "scale": 2
+    }
+}

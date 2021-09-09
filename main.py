@@ -149,7 +149,7 @@ class Mainclass():
         if random.triangular(0, 100, 50) > 50:
             self.EVENT = True
             #todo add class of event depending on level of player
-            eName, eFlare, eDmg, eGold, eXp, eScale = self.loadEvent("class1")
+            eName, eFlare, eDmg, eGold, eXp, eScale, lClass = self.loadEvent()
             #add high chance of combat on explore
             if bool(random.getrandbits(1)):
                 self.fight("class1")
@@ -158,9 +158,16 @@ class Mainclass():
             if damage <= 0:
                 damage = 0
             print(f'EVENT - {eName} - {eFlare}')
-            if random.triangular(0, 100, 50) > 50:
+            if random.triangular(0, 100, 50) > (50 - self.luck):
                 print("SUCCESS!")
                 self.handleProfileStats(eXp, damage, eGold)
+                #loot
+                if random.triangular(0, 100, 35) > (50 - self.luck):
+                    if bool(random.getrandbits(1)):
+                        l = "armor"
+                    else:
+                        l = "weapon"
+                    self.lootGain(lClass, l) #give loot
                 self.EVENT = False
             else:
                 print("FAILURE!")
@@ -173,10 +180,28 @@ class Mainclass():
             else:
                 print(f'You find nothing...')
 
-    def loadEvent(self, classStr):
-        with open(f"./data/event/{classStr}events.json", "r") as f:
+    def loadEvent(self):
+        #must be an easier way to do this :S
+        eventClassNr = "1"
+        lootClass = "1"
+        if self.level >= 5 and self.level <= 10:
+            eventClassNr = "2"
+            lootClass = "2"
+        if self.level >= 11 and self.level <= 16:
+            eventClassNr = "3"
+            lootClass = "3"
+        if self.level >= 17 and self.level <= 21:
+            eventClassNr = "4"
+            lootClass = "4"
+        if self.level >= 22 and self.level <= 27:
+            eventClassNr = "5"
+            lootClass = "5"
+        if self.currentBiome == 8:
+            eventClassNr = "Dun"
+            lootClass = "Dun"
+
+        with open(f"./data/event/class{eventClassNr}events.json", "r") as f:
             eventData = json.load(f)
-        #this needs class of event depending on stuff and biome specific.
         eventKey = random.choice(list(eventData.keys()))
         eventFlare = eventData[eventKey]["flare"]
         eventDamage = eventData[eventKey]["damage"]
@@ -184,7 +209,7 @@ class Mainclass():
         eventXp = eventData[eventKey]["xp"]
         eventScale = eventData[eventKey]["scale"]
         f.close()
-        return eventKey, eventFlare, eventDamage, eventGold, eventXp, eventScale
+        return eventKey, eventFlare, eventDamage, eventGold, eventXp, eventScale, lootClass
 
 
     #handles basic stats
@@ -302,8 +327,40 @@ class Mainclass():
                     break
         return currentWeaponDamage ,currentArmorDefense
 
-    def lootGain():
-        pass
+    #this needs level based loot for class files
+    def lootGain(self, classNr, typeN):
+        with open(f"./data/{typeN}/class{classNr}{typeN}.json", "r") as f:
+            lootData = json.load(f)
+        gearKey = random.choice(list(lootData.keys()))
+        currentDamage, currentArmor = self.gearStats()
+        f.close()
+
+        if typeN == "armor":
+            if currentArmor >= lootData[gearKey]:
+                print(f'You looted {gearKey} but what you have is better.')
+            else:
+                print(f'You looted {gearKey}!')
+                self.armor = gearKey
+                with open(self.filePath, "r") as a:
+                    pData = json.load(a)
+                pData["armor"] = self.armor
+                self.writeJSON(self.filePath, pData)
+                a.close()
+
+        if typeN == "weapon":
+            if currentDamage >= lootData[gearKey]:
+                print(f'You looted {gearKey} but what you have is better.')
+            else:
+                print(f'You looted {gearKey}!')
+                self.weapon = gearKey
+                with open(self.filePath, "r") as a:
+                    pData = json.load(a)
+                pData["weapon"] = self.weapon
+                self.writeJSON(self.filePath, pData)
+                a.close()
+
+
+
 
     def wipe(self):
         os.system('cls' if os.name == 'nt' else 'clear')
